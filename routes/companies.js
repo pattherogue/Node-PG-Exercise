@@ -33,6 +33,9 @@ router.get('/:code', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const { code, name, description } = req.body;
+    if (!code || !name || !description) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
     const result = await db.query('INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING *', [code, name, description]);
     return res.status(201).json({ company: result.rows[0] });
   } catch (err) {
@@ -45,6 +48,9 @@ router.put('/:code', async (req, res, next) => {
   try {
     const { code } = req.params;
     const { name, description } = req.body;
+    if (!name || !description) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
     const result = await db.query('UPDATE companies SET name = $1, description = $2 WHERE code = $3 RETURNING *', [name, description, code]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Company not found' });
